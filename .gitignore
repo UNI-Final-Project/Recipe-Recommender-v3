@@ -1,0 +1,38 @@
+# Environment variables
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+ENV/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Model files and data (if they're too large for GitHub)
+text_emb.pkl
+embedder.pkl
+recipes_f.pkl
+Data/food.pkl
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# OpenAI API Keys and other secrets
+*.key
+secrets.*
