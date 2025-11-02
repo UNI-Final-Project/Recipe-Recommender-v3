@@ -1,5 +1,5 @@
 # Official Python image
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # Set work directory
 WORKDIR /app
@@ -13,11 +13,11 @@ RUN pip install --upgrade pip \
 COPY app.py .
 COPY food.pkl .
 COPY text_emb.pkl .
-COPY embedder.pkl .
+COPY tfidf_vectorizer.pkl .
 COPY .env .
 
-# Cloud Run requires port 8080
-EXPOSE 8080
+# Port 8000
+EXPOSE 8000
 
-# Commands to init app using gunicorn
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "1"]
+# Commands to init app
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

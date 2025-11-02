@@ -19,9 +19,9 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 # Load .env if present
 load_dotenv(PROJECT_ROOT / ".env")
 
-DATA_PKL = os.getenv("DATA_PKL", str(PROJECT_ROOT / "Data/food.pkl"))
+DATA_PKL = os.getenv("DATA_PKL", str(PROJECT_ROOT / "food.pkl"))
 TEXT_EMB_PKL = os.getenv("TEXT_EMB_PKL", str(PROJECT_ROOT / "text_emb.pkl"))
-EMBEDDER_PKL = os.getenv("EMBEDDER_PKL", str(PROJECT_ROOT / "embedder.pkl"))
+EMBEDDER_PKL = os.getenv("EMBEDDER_PKL", str(PROJECT_ROOT / "tfidf_vectorizer.pkl"))
 
 app = FastAPI(title="Simple Recipes Recommender API")
 
@@ -62,7 +62,7 @@ def load_resources():
 
 def recommend_for_new_user(query, n=3, alpha=0.6, beta=0.3, return_scores=False):
     # Embed the query
-    query_emb = embedder.encode([query])
+    query_emb = embedder.transform([query])
 
     # Semantic similarity
     sim_text = cosine_similarity(query_emb, text_emb).flatten()

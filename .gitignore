@@ -23,10 +23,8 @@ build/
 .ipynb_checkpoints
 
 # Model files and data (if they're too large for GitHub)
-text_emb.pkl
-embedder.pkl
 recipes_f.pkl
-Data/food.pkl
+food.pkl
 
 # macOS
 .DS_Store
