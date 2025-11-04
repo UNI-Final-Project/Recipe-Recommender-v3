@@ -14,10 +14,9 @@ COPY app.py .
 COPY food.pkl .
 COPY text_emb.pkl .
 COPY tfidf_vectorizer.pkl .
-COPY .env .
 
-# Port 8000
-EXPOSE 8000
+# Port 8080
+EXPOSE 8080
 
 # Commands to init app
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
