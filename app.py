@@ -5,13 +5,14 @@ import os
 import json
 import pickle
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
+from typing import List
 
 # Project paths
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -27,6 +28,31 @@ app = FastAPI(title="Simple Recipes Recommender API")
 
 class QueryIn(BaseModel):
     query: str
+
+class RecipeOut(BaseModel):
+    nombre: str
+    descripción: str
+    ingredientes: List[str]
+    instrucciones: List[str]
+    calificación_promedio: float
+
+    @field_validator("ingredientes", mode="before")
+    def parse_ingredientes_list(cls, v):
+        if isinstance(v, str):
+            v = v.strip("[]").replace("'", "").replace('"', "")
+            return [i.strip() for i in v.split(",") if i.strip()]
+        return v
+
+    @field_validator("instrucciones", mode="before")
+    def parse_instrucciones_list(cls, v):
+        if isinstance(v, str):
+            v = v.strip("[]").replace("'", "").replace('"', "")
+            return [i.strip() for i in v.split(",") if i.strip()]
+        return v
+
+
+class RecommendResponse(BaseModel):
+    recetas: List[RecipeOut]
 
 # Global placeholders
 data = None
@@ -134,9 +160,10 @@ def recommend(query, n=3, alpha=0.6, beta=0.3, return_scores=False):
 def recommend_endpoint(q: QueryIn):
     try:
         recs = recommend(q.query)
+        validated = RecommendResponse(recetas=recs)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-    return recs
+    return validated
 
 # To run locally:
 # pip install -r requirements.txt
