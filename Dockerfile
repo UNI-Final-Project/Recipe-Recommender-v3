@@ -12,8 +12,6 @@ RUN pip install --upgrade pip \
 # Copy application files
 COPY app.py .
 COPY food.pkl .
-COPY text_emb.pkl .
-COPY tfidf_vectorizer.pkl .
 
 # Port 8080
 EXPOSE 8080
