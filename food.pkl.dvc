@@ -1,0 +1,5 @@
+outs:
+- md5: 21e029d41a476a60465d69cce6fa2b8d
+  size: 68154455
+  hash: md5
+  path: food.pkl

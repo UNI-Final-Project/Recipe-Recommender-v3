@@ -33,3 +33,4 @@ secrets.*
 
 # Raw data
 Data/*.csv
+/food.pkl
