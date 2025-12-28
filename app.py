@@ -158,7 +158,7 @@ def recommend_for_new_user(query, n=3, alpha=0.7, return_scores=False, openai_ap
     
     return result.reset_index(drop=True)
 
-# Initialize LLM
+# Initialize LLM.
 llm = ChatOpenAI(model="gpt-4.1-2025-04-14", api_key=openai_api_key)
 
 # Prompts to translate
