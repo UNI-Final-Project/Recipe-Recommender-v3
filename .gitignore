@@ -35,5 +35,4 @@ keys/
 
 # Raw data
 Data/*.csv
-/food.pkl
 /mlflow.db
