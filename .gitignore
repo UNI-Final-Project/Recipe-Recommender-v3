@@ -10,6 +10,7 @@ __pycache__/
 .venv/
 venv/
 ENV/
+mlruns/
 
 # Distribution / packaging
 dist/
@@ -30,7 +31,9 @@ build/
 # OpenAI API Keys and other secrets
 *.key
 secrets.*
+keys/
 
 # Raw data
 Data/*.csv
 /food.pkl
+/mlflow.db

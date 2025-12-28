@@ -2,6 +2,7 @@ from pathlib import Path
 import os
 import json
 import pickle
+import time
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, field_validator
 import numpy as np
@@ -14,6 +15,7 @@ from langchain_openai import ChatOpenAI
 from typing import List
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance
+import mlflow
 
 # Project paths
 PROJECT_ROOT = Path(__file__).resolve().parent
@@ -77,10 +79,33 @@ def load_resources():
         raise FileNotFoundError(f"{DATA_PKL} not found. Place your food.pkl in the project root or set DATA_PKL in .env")
     data = pd.read_pickle(DATA_PKL)
 
+    # Initialize MLflow
+    try:
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+
+        # Log model parameters once at startup
+        with mlflow.start_run(run_name="model_config"):
+            mlflow.log_param("embedding_model", "text-embedding-3-small")
+            mlflow.log_param("llm_model", "gpt-4.1-2025-04-14")
+            mlflow.log_param("alpha", 0.7)
+            mlflow.log_param("n", 3)
+            mlflow.log_param("qdrant_collection", "recipes_embeddings_cloud")
+            mlflow.log_param("num_recipes", len(data))
+            mlflow.end_run()
+
+        print(f"MLflow tracking enabled: {MLFLOW_TRACKING_URI}")
+    except Exception as e:
+        print(f"MLflow initialization warning: {e}. Tracking may be unavailable.")
+
 # Store OpenAI key
 load_dotenv(PROJECT_ROOT / ".env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai_api_key = OPENAI_API_KEY
+
+# MLflow Configuration
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "./mlruns")
+MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", "recipe-recommendations")
 
 def recommend_for_new_user(query, n=3, alpha=0.7, return_scores=False, openai_api_key=openai_api_key, client=client):
     # Generate embedding for the query
@@ -162,20 +187,52 @@ def recommend(query, n=3, alpha=0.7, return_scores=False):
     # Apply LLM chain
     translated_recipes = []
 
+    # Track translation time
+    translation_start = time.perf_counter()
+
     for recipe in recommendations_json:
         translated_json = translate_chain.invoke({"var1": json.dumps(recipe, ensure_ascii=False)})
         translated_dict = json.loads(translated_json)  # parsear a dict
         translated_recipes.append(translated_dict)
 
-    return translated_recipes
+    translation_latency = (time.perf_counter() - translation_start) * 1000
+
+    return translated_recipes, translation_latency
 
 @app.post("/recommend")
 def recommend_endpoint(q: QueryIn):
-    try:
-        recs = recommend(q.query)
-        validated = RecommendResponse(recetas=recs)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    with mlflow.start_run():
+        # Log query info
+        try:
+            mlflow.log_param("query", q.query[:100])
+        except Exception:
+            pass  # Silent fail for tracking
+
+        # Track total API latency
+        start = time.perf_counter()
+
+        try:
+            recs, translation_latency = recommend(q.query)
+            validated = RecommendResponse(recetas=recs)
+
+            # Log metrics
+            api_latency = (time.perf_counter() - start) * 1000
+            try:
+                mlflow.log_metric("api_latency_ms", api_latency)
+                mlflow.log_metric("translation_latency_ms", translation_latency)
+                mlflow.log_metric("num_recipes", len(recs))
+                # Save response
+                mlflow.log_text(validated.json(ensure_ascii=False, indent=2), "response.json")
+            except Exception:
+                pass  # Silent fail for tracking
+
+        except Exception as e:
+            try:
+                mlflow.log_param("error", str(e)[:200])
+            except Exception:
+                pass  # Silent fail for tracking
+            raise HTTPException(status_code=500, detail=str(e))
+
     return validated
 
 # To run locally:
