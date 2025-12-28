@@ -221,7 +221,7 @@ def recommend_endpoint(q: QueryIn):
                 mlflow.log_metric("api_latency_ms", api_latency)
                 mlflow.log_metric("translation_latency_ms", translation_latency)
                 mlflow.log_metric("num_recipes", len(recs))
-                # Save response
+                # Save responses
                 mlflow.log_text(validated.json(ensure_ascii=False, indent=2), "response.json")
             except Exception:
                 pass  # Silent fail for tracking
