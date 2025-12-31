@@ -54,7 +54,7 @@ class RetrainingOrchestrator:
         self.config = config or RetrainingConfig()
         self.registry = ModelRegistry()
         self.jobs: Dict[str, RetrainingJob] = {}
-        self.data_store = config.artifacts_dir / "retraining_data"
+        self.data_store = (Path(__file__).parent.parent / "mlruns") / "retraining_data"
         self.data_store.mkdir(parents=True, exist_ok=True)
     
     def check_retrain_needed(self, model_id: str) -> Tuple[bool, Dict[str, Any]]:

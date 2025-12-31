@@ -1,0 +1,37 @@
+{"timestamp": "2025-12-31T05:08:29.670981", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 103}
+{"timestamp": "2025-12-31T05:08:29.989704", "level": "INFO", "logger": "app", "message": "Initial model registered in production", "module": "app", "function": "load_resources", "line": 149}
+{"timestamp": "2025-12-31T05:08:29.990023", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 151}
+{"timestamp": "2025-12-31T05:08:56.651653", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 103}
+{"timestamp": "2025-12-31T05:08:56.867844", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 151}
+{"timestamp": "2025-12-31T05:09:33.014047", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 103}
+{"timestamp": "2025-12-31T05:09:33.206729", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 151}
+{"timestamp": "2025-12-31T05:11:43.827129", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:11:44.074143", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:11:48.741257", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:11:48.950045", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:12:13.456344", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:12:13.690018", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:12:54.483453", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:12:54.726863", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:13:21.714629", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:13:21.934372", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:13:42.123871", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:13:42.331502", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:14:31.726918", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:14:31.975056", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:15:06.992451", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:15:07.200264", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:16:51.230382", "level": "INFO", "logger": "app", "message": "Recommendation request received", "module": "app", "function": "recommend_endpoint", "line": 269}
+{"timestamp": "2025-12-31T05:16:54.103546", "level": "ERROR", "logger": "app", "message": "Error during recommendation", "module": "app", "function": "recommend_endpoint", "line": 325}
+{"timestamp": "2025-12-31T05:18:20.011538", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:18:20.233135", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:19:17.849795", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:19:18.057369", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:33:19.297112", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:33:19.502787", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:37:30.883276", "level": "INFO", "logger": "app", "message": "Data loaded: 53064 recipes", "module": "app", "function": "load_resources", "line": 105}
+{"timestamp": "2025-12-31T05:37:31.819013", "level": "INFO", "logger": "app", "message": "MLflow tracking enabled: ./mlruns", "module": "app", "function": "load_resources", "line": 153}
+{"timestamp": "2025-12-31T05:38:26.910564", "level": "INFO", "logger": "app", "message": "Recommendation request received", "module": "app", "function": "recommend_endpoint", "line": 269}
+{"timestamp": "2025-12-31T05:38:31.236365", "level": "ERROR", "logger": "app", "message": "Error during recommendation", "module": "app", "function": "recommend_endpoint", "line": 325}
+{"timestamp": "2025-12-31T05:39:08.174973", "level": "INFO", "logger": "app", "message": "Recommendation request received", "module": "app", "function": "recommend_endpoint", "line": 269}
+{"timestamp": "2025-12-31T05:39:11.826731", "level": "ERROR", "logger": "app", "message": "Error during recommendation", "module": "app", "function": "recommend_endpoint", "line": 325}

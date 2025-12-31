@@ -1,0 +1,29 @@
+{
+  "hybrid_ranker_1.0.0": {
+    "model_id": "hybrid_ranker",
+    "model_type": "hybrid",
+    "version": "1.0.0",
+    "timestamp": "2025-12-31T05:08:29.931403",
+    "description": "Initial production model - Hybrid semantic + popularity ranker",
+    "metrics": {
+      "alpha": 0.7,
+      "status": "production"
+    },
+    "parameters": {
+      "embedding_model": "text-embedding-3-small",
+      "llm_model": "gpt-4.1-2025-04-14",
+      "ranking_algorithm": "hybrid",
+      "features": [
+        "semantic_score",
+        "popularity_score"
+      ]
+    },
+    "status": "production",
+    "parent_version": null,
+    "deployment_date": null,
+    "tags": {
+      "environment": "production",
+      "initial_version": "true"
+    }
+  }
+}

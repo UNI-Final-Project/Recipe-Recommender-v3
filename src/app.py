@@ -31,12 +31,20 @@ from mlops import (
 )
 
 # Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 # Load .env if present
-load_dotenv(PROJECT_ROOT / ".env")
+load_dotenv(PROJECT_ROOT / "config" / ".env")
 
 DATA_PKL = os.getenv("DATA_PKL", str(PROJECT_ROOT / "food.pkl"))
+
+# MLflow Configuration - MUST BE BEFORE @app.on_event
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", str(PROJECT_ROOT / "mlruns"))
+MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", "recipe-recommendations")
+
+# Store OpenAI key
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+openai_api_key = OPENAI_API_KEY
 
 # Connect with Qdrant
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
@@ -44,7 +52,8 @@ QDRANT_HOST = "https://a48878a9-e5e9-4cf4-9283-4727ea94bd4c.europe-west3-0.gcp.c
 
 client = QdrantClient(
     url=QDRANT_HOST,
-    api_key=QDRANT_API_KEY
+    api_key=QDRANT_API_KEY,
+    check_compatibility=False  # Suppress version check warning
 )
 
 app = FastAPI(title="Simple Recipes Recommender API")
@@ -88,77 +97,72 @@ feature_cols = []
 def load_resources():
     global data, text_emb, embedder, scaled_features, feature_cols
 
-    if not Path(DATA_PKL).exists():
-        raise FileNotFoundError(f"{DATA_PKL} not found. Place your food.pkl in the project root or set DATA_PKL in .env")
-    data = pd.read_pickle(DATA_PKL)
-    
-    app_logger.info(f"Data loaded: {len(data)} recipes")
-
-    # Initialize and configure MLflow
     try:
-        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-        mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+        if not Path(DATA_PKL).exists():
+            raise FileNotFoundError(f"{DATA_PKL} not found. Place your food.pkl in the project root or set DATA_PKL in .env")
+        data = pd.read_pickle(DATA_PKL)
         
-        # Registrar configuración inicial del modelo
-        with mlflow.start_run(run_name="startup_config"):
-            mlflow.log_params({
-                "embedding_model": "text-embedding-3-small",
-                "llm_model": "gpt-4.1-2025-04-14",
-                "alpha": 0.7,
-                "n": 3,
-                "qdrant_collection": "recipes_embeddings_cloud",
-                "num_recipes": len(data),
-            })
-        
-        # Registrar modelo de producción actual
-        from mlops.model_registry import ModelMetadata
-        
-        prod_model = model_registry.get_production_model("hybrid_ranker")
-        if not prod_model:
-            # Registrar como modelo inicial
-            metadata = ModelMetadata(
-                model_id="hybrid_ranker",
-                model_type="hybrid",
-                version="1.0.0",
-                description="Initial production model - Hybrid semantic + popularity ranker",
-                metrics={
-                    "alpha": 0.7,
-                    "status": "production"
-                },
-                parameters={
+        app_logger.info(f"Data loaded: {len(data)} recipes")
+
+        # Initialize and configure MLflow
+        try:
+            mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+            mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+            
+            # Registrar configuración inicial del modelo
+            with mlflow.start_run(run_name="startup_config"):
+                mlflow.log_params({
                     "embedding_model": "text-embedding-3-small",
                     "llm_model": "gpt-4.1-2025-04-14",
-                    "ranking_algorithm": "hybrid",
-                    "features": ["semantic_score", "popularity_score"]
-                },
-                status="production",
-                tags={
-                    "environment": "production",
-                    "initial_version": "true"
-                }
-            )
-            model_registry.register_model(metadata)
-            app_logger.info("Initial model registered in production")
-        
-        app_logger.info(f"MLflow tracking enabled: {MLFLOW_TRACKING_URI}")
-        mlops_logger.info(f"MLOps system initialized successfully")
-        
+                    "alpha": 0.7,
+                    "n": 3,
+                    "qdrant_collection": "recipes_embeddings_cloud",
+                    "num_recipes": len(data),
+                })
+            
+            # Registrar modelo de producción actual
+            from mlops.model_registry import ModelMetadata
+            
+            prod_model = model_registry.get_production_model("hybrid_ranker")
+            if not prod_model:
+                # Registrar como modelo inicial
+                metadata = ModelMetadata(
+                    model_id="hybrid_ranker",
+                    model_type="hybrid",
+                    version="1.0.0",
+                    description="Initial production model - Hybrid semantic + popularity ranker",
+                    metrics={
+                        "alpha": 0.7,
+                        "status": "production"
+                    },
+                    parameters={
+                        "embedding_model": "text-embedding-3-small",
+                        "llm_model": "gpt-4.1-2025-04-14",
+                        "ranking_algorithm": "hybrid",
+                        "features": ["semantic_score", "popularity_score"]
+                    },
+                    status="production",
+                    tags={
+                        "environment": "production",
+                        "initial_version": "true"
+                    }
+                )
+                model_registry.register_model(metadata)
+                app_logger.info("Initial model registered in production")
+            
+            app_logger.info(f"MLflow tracking enabled: {MLFLOW_TRACKING_URI}")
+            mlops_logger.info(f"MLOps system initialized successfully")
+            
+        except Exception as e:
+            app_logger.warning(f"MLflow/MLOps initialization warning: {e}")
+            mlops_logger.warning(f"MLOps tracking may be unavailable: {e}")
+    
+    except FileNotFoundError as e:
+        app_logger.error(f"Startup error: {e}")
+        raise
     except Exception as e:
-        app_logger.warning(f"MLflow/MLOps initialization warning: {e}")
-        mlops_logger.warning(f"MLOps tracking may be unavailable: {e}")
-
-# Store OpenAI key
-load_dotenv(PROJECT_ROOT / ".env")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai_api_key = OPENAI_API_KEY
-
-# MLflow Configuration
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", str(PROJECT_ROOT / "mlruns"))
-MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", "recipe-recommendations")
-
-# Configurar MLflow con config global
-mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
-mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
+        app_logger.error(f"Unexpected startup error: {e}")
+        raise
 
 def recommend_for_new_user(query, n=3, alpha=0.7, return_scores=False, openai_api_key=openai_api_key, client=client):
     # Generate embedding for the query
@@ -336,13 +340,48 @@ def recommend_endpoint(q: QueryIn):
         })
         raise HTTPException(status_code=500, detail="Unexpected error")
 
+@app.get("/")
+def root():
+    """
+    Endpoint raíz - Redirecciona a documentación
+    """
+    return {
+        "message": "Recipe Recommender API - MLOps Edition",
+        "version": "1.0.0",
+        "endpoints": {
+            "health": "/health",
+            "docs": "/docs",
+            "redoc": "/redoc",
+            "openapi": "/openapi.json",
+            "recommend": "/recommend",
+            "metrics": "/metrics",
+            "models": "/models"
+        }
+    }
+
 @app.get("/health")
 def health_check():
     """
     Endpoint de salud del sistema
     """
-    status = health_monitor.get_system_status()
-    return status
+    try:
+        import sys
+        return {
+            "status": "healthy",
+            "timestamp": pd.Timestamp.now().isoformat(),
+            "service": "Recipe Recommender API",
+            "version": "1.0.0",
+            "data_loaded": data is not None,
+            "num_recipes": len(data) if data is not None else 0,
+            "model_production": "hybrid_ranker v1.0.0"
+        }
+    except Exception as e:
+        app_logger.error(f"Health check error: {e}", exc_info=True)
+        return {
+            "status": "unhealthy",
+            "timestamp": pd.Timestamp.now().isoformat(),
+            "error": str(e)
+        }
 
 @app.get("/metrics")
 def get_metrics(window_minutes: int = 60):
