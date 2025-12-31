@@ -17,6 +17,19 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance
 import mlflow
 
+# MLOps imports
+from mlops import (
+    config,
+    app_logger,
+    mlops_logger,
+    monitoring_logger,
+    model_registry,
+    metrics_collector,
+    anomaly_detector,
+    health_monitor,
+    auto_scheduler,
+)
+
 # Project paths
 PROJECT_ROOT = Path(__file__).resolve().parent
 
@@ -78,25 +91,61 @@ def load_resources():
     if not Path(DATA_PKL).exists():
         raise FileNotFoundError(f"{DATA_PKL} not found. Place your food.pkl in the project root or set DATA_PKL in .env")
     data = pd.read_pickle(DATA_PKL)
+    
+    app_logger.info(f"Data loaded: {len(data)} recipes")
 
-    # Initialize MLflow
+    # Initialize and configure MLflow
     try:
         mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
         mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
-
-        # Log model parameters once at startup
-        with mlflow.start_run(run_name="model_config"):
-            mlflow.log_param("embedding_model", "text-embedding-3-small")
-            mlflow.log_param("llm_model", "gpt-4.1-2025-04-14")
-            mlflow.log_param("alpha", 0.7)
-            mlflow.log_param("n", 3)
-            mlflow.log_param("qdrant_collection", "recipes_embeddings_cloud")
-            mlflow.log_param("num_recipes", len(data))
-            mlflow.end_run()
-
-        print(f"MLflow tracking enabled: {MLFLOW_TRACKING_URI}")
+        
+        # Registrar configuración inicial del modelo
+        with mlflow.start_run(run_name="startup_config"):
+            mlflow.log_params({
+                "embedding_model": "text-embedding-3-small",
+                "llm_model": "gpt-4.1-2025-04-14",
+                "alpha": 0.7,
+                "n": 3,
+                "qdrant_collection": "recipes_embeddings_cloud",
+                "num_recipes": len(data),
+            })
+        
+        # Registrar modelo de producción actual
+        from mlops.model_registry import ModelMetadata
+        
+        prod_model = model_registry.get_production_model("hybrid_ranker")
+        if not prod_model:
+            # Registrar como modelo inicial
+            metadata = ModelMetadata(
+                model_id="hybrid_ranker",
+                model_type="hybrid",
+                version="1.0.0",
+                description="Initial production model - Hybrid semantic + popularity ranker",
+                metrics={
+                    "alpha": 0.7,
+                    "status": "production"
+                },
+                parameters={
+                    "embedding_model": "text-embedding-3-small",
+                    "llm_model": "gpt-4.1-2025-04-14",
+                    "ranking_algorithm": "hybrid",
+                    "features": ["semantic_score", "popularity_score"]
+                },
+                status="production",
+                tags={
+                    "environment": "production",
+                    "initial_version": "true"
+                }
+            )
+            model_registry.register_model(metadata)
+            app_logger.info("Initial model registered in production")
+        
+        app_logger.info(f"MLflow tracking enabled: {MLFLOW_TRACKING_URI}")
+        mlops_logger.info(f"MLOps system initialized successfully")
+        
     except Exception as e:
-        print(f"MLflow initialization warning: {e}. Tracking may be unavailable.")
+        app_logger.warning(f"MLflow/MLOps initialization warning: {e}")
+        mlops_logger.warning(f"MLOps tracking may be unavailable: {e}")
 
 # Store OpenAI key
 load_dotenv(PROJECT_ROOT / ".env")
@@ -104,8 +153,12 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai_api_key = OPENAI_API_KEY
 
 # MLflow Configuration
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "./mlruns")
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", str(PROJECT_ROOT / "mlruns"))
 MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", "recipe-recommendations")
+
+# Configurar MLflow con config global
+mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+mlflow.set_experiment(MLFLOW_EXPERIMENT_NAME)
 
 def recommend_for_new_user(query, n=3, alpha=0.7, return_scores=False, openai_api_key=openai_api_key, client=client):
     # Generate embedding for the query
@@ -201,39 +254,144 @@ def recommend(query, n=3, alpha=0.7, return_scores=False):
 
 @app.post("/recommend")
 def recommend_endpoint(q: QueryIn):
-    with mlflow.start_run():
-        # Log query info
-        try:
-            mlflow.log_param("query", q.query[:100])
-        except Exception:
-            pass  # Silent fail for tracking
-
-        # Track total API latency
-        start = time.perf_counter()
-
-        try:
-            recs, translation_latency = recommend(q.query)
-            validated = RecommendResponse(recetas=recs)
-
-            # Log metrics
-            api_latency = (time.perf_counter() - start) * 1000
+    """
+    Endpoint de recomendación con monitoreo y logging completo
+    """
+    request_id = f"{time.time_ns()}"
+    start_time = time.perf_counter()
+    
+    try:
+        # Log de solicitud
+        app_logger.info(f"Recommendation request received", extra={
+            "request_id": request_id,
+            "query": q.query[:100]
+        })
+        
+        with mlflow.start_run(run_name=f"recommend_{request_id}"):
+            # Log de parámetros
+            mlflow.log_param("request_id", request_id)
+            mlflow.log_param("query_length", len(q.query))
+            
             try:
+                # Obtener recomendaciones
+                recs, translation_latency = recommend(q.query)
+                validated = RecommendResponse(recetas=recs)
+                
+                # Calcular métricas
+                total_latency = (time.perf_counter() - start_time) * 1000
+                api_latency = total_latency - translation_latency
+                
+                # Registrar métricas en el collector
+                metrics_collector.record("api_latency_ms", api_latency)
+                metrics_collector.record("translation_latency_ms", translation_latency)
+                metrics_collector.record("num_recipes", len(recs))
+                metrics_collector.record("request_count", 1)
+                
+                # Log en MLflow
                 mlflow.log_metric("api_latency_ms", api_latency)
                 mlflow.log_metric("translation_latency_ms", translation_latency)
+                mlflow.log_metric("total_latency_ms", total_latency)
                 mlflow.log_metric("num_recipes", len(recs))
-                # Save responses
-                mlflow.log_text(validated.json(ensure_ascii=False, indent=2), "response.json")
-            except Exception:
-                pass  # Silent fail for tracking
+                mlflow.log_text(validated.model_dump_json(indent=2), "response.json")
+                
+                # Log de éxito
+                app_logger.info(f"Recommendation successful", extra={
+                    "request_id": request_id,
+                    "latency_ms": total_latency,
+                    "recipes_returned": len(recs)
+                })
+                
+                # Verificar anomalías
+                if api_latency > config.alert_threshold_latency:
+                    monitoring_logger.warning(
+                        f"High latency detected",
+                        extra={
+                            "request_id": request_id,
+                            "latency_ms": api_latency,
+                            "threshold_ms": config.alert_threshold_latency
+                        }
+                    )
+                
+                return validated
+            
+            except Exception as e:
+                mlflow.log_param("error_type", type(e).__name__)
+                mlflow.log_param("error_message", str(e)[:200])
+                
+                app_logger.error(f"Error during recommendation", extra={
+                    "request_id": request_id,
+                    "error": str(e)
+                })
+                
+                metrics_collector.record("error_rate", 1)
+                
+                raise HTTPException(status_code=500, detail=str(e))
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        app_logger.error(f"Unexpected error", extra={
+            "request_id": request_id,
+            "error": str(e)
+        })
+        raise HTTPException(status_code=500, detail="Unexpected error")
 
-        except Exception as e:
-            try:
-                mlflow.log_param("error", str(e)[:200])
-            except Exception:
-                pass  # Silent fail for tracking
-            raise HTTPException(status_code=500, detail=str(e))
+@app.get("/health")
+def health_check():
+    """
+    Endpoint de salud del sistema
+    """
+    status = health_monitor.get_system_status()
+    return status
 
-    return validated
+@app.get("/metrics")
+def get_metrics(window_minutes: int = 60):
+    """
+    Obtiene métricas de los últimos N minutos
+    """
+    metrics_summary = {
+        "timestamp": time.time(),
+        "window_minutes": window_minutes,
+        "metrics": {}
+    }
+    
+    metric_names = ["api_latency_ms", "translation_latency_ms", "error_rate", "num_recipes"]
+    for metric_name in metric_names:
+        stats = metrics_collector.get_stats(metric_name, window_minutes=window_minutes)
+        if stats:
+            metrics_summary["metrics"][metric_name] = stats
+    
+    return metrics_summary
+
+@app.get("/models")
+def list_models():
+    """
+    Lista todos los modelos registrados
+    """
+    models = model_registry.list_models()
+    return {
+        "count": len(models),
+        "models": models
+    }
+
+@app.get("/models/{model_id}/production")
+def get_production_model(model_id: str):
+    """
+    Obtiene el modelo en producción para un modelo_id
+    """
+    prod_model = model_registry.get_production_model(model_id)
+    if not prod_model:
+        raise HTTPException(status_code=404, detail=f"No production model found for {model_id}")
+    return prod_model
+
+@app.post("/retrain/check")
+def check_retrain_needed():
+    """
+    Verifica si hay modelos que necesiten retraining
+    """
+    model_ids = ["hybrid_ranker"]  # Modelos a monitorear
+    results = auto_scheduler.check_and_schedule_retraining(model_ids)
+    return results
 
 # To run locally:
 # pip install -r requirements.txt

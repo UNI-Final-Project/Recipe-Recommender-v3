@@ -11,3 +11,5 @@ qdrant_client
 mlflow
 dvc
 dvc[gs]
+scikit-learn
+python-json-logger
