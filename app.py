@@ -27,7 +27,7 @@ DATA_PKL = os.getenv("DATA_PKL", str(PROJECT_ROOT / "food.pkl"))
 
 # Connect with Qdrant
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
-QDRANT_HOST = "https://a48878a9-e5e9-4cf4-9283-4727ea94bd4c.europe-west3-0.gcp.cloud.qdrant.io"
+QDRANT_HOST = os.getenv("QDRANT_HOST", "https://a48878a9-e5e9-4cf4-9283-4727ea94bd4c.europe-west3-0.gcp.cloud.qdrant.io")
 
 client = QdrantClient(
     url=QDRANT_HOST,
