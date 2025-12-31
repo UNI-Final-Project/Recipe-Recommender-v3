@@ -1,0 +1,9 @@
+model_registry:
+  type: "file" # opciones: mlflow | file
+  file: "mlops/model_versions.txt"
+monitoring:
+  log_path: "mlops/monitor.log"
+evaluation:
+  expected_columns: ["feature","label"]
+retrain:
+  policy: "manual" # manual | scheduled | metric_based

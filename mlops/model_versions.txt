@@ -1,0 +1,34 @@
+{"time": "2025-12-31T22:47:18.865825Z", "name": "LocalTest", "model_path": "dummy_model_local.pkl", "params": {}}
+{"time": "2025-12-31T22:47:35.414638Z", "name": "LocalTest", "model_path": "dummy_model_local.pkl", "params": {}}
+{"time": "2025-12-31T22:53:02.287507Z", "name": "FullPipeline", "model_path": "model_eval.pkl", "params": {}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.9015371843845535, "n": 3}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.9155610282430953, "n": 3}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8965829403510769, "n": 3, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T22-59-33.162538.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T22-59-36.086725.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T22-59-36.086725.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.9178985365051086, "n": 3, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-04-46.280029.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-04-49.178032.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-04-49.178032.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.92809568052458, "n": 3, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-04-58.397675.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-05-01.766421.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-05-01.766421.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.9110674958266033, "n": 3, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-07-43.314344.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-07-46.325588.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-07-46.325588.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.927855517539248, "n": 3, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-10-17.741612.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-10-21.129057.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-10-21.129057.txt"}}
+{"time": "2025-12-31T23:12:51.222473Z", "name": "TestRun", "model_path": "dummy_model_local.pkl", "params": {}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8952021533784041, "n": 3, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-12-57.541364.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.0, "n": 2, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-13-28.023695.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-13-28.023695.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8666669845745009, "n": 30, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-19-43.243157.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.966666666666667, "n": 30, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-19-46.217954.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-19-46.217954.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8720763596129805, "n": 30, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-19-55.734173.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.966666666666667, "n": 30, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-19-58.980153.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-19-58.980153.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8733367003177572, "n": 30, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-20-02.096589.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.966666666666667, "n": 30, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-20-05.107866.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-20-05.107866.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8736508147804376, "n": 30, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-20-08.026742.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.966666666666667, "n": 30, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-20-11.014815.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-20-11.014815.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8678822158065699, "n": 30, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-20-13.958466.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.966666666666667, "n": 30, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-20-16.966341.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-20-16.966341.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.8701071379790715, "n": 30, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-22-48.165272.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.966666666666667, "n": 30, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-22-51.167274.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-22-51.167274.txt"}}
+{"model": "testembedding-3small", "info": {"avg_cosine": 0.87394666412842, "n": 30, "embeddings_file": "mlops/artifacts/embeddings_2025-12-31T23-23-29.891573.json"}}
+{"model": "gpt-4.1", "info": {"avg_response_len": 9.966666666666667, "n": 30, "prompts_file": "mlops/artifacts/llm_prompts_2025-12-31T23-23-32.730593.txt", "responses_file": "mlops/artifacts/llm_responses_2025-12-31T23-23-32.730593.txt"}}

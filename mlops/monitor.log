@@ -1,0 +1,33 @@
+2025-12-31T22:53:59.220484Z - ci pipeline metric=1.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.9015371843845535
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.9155610282430953
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.8965829403510769
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.9178985365051086
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.92809568052458
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.9110674958266033
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.927855517539248
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+embedding_evaluation model=testembedding-3small avg_cosine=0.8952021533784041
+llm_evaluation model=gpt-4.1 avg_response_len=9.0
+2025-12-31T23:13:49.092120Z - test from module
+2025-12-31T23:15:54.167689Z - test from module
+embedding_evaluation model=testembedding-3small avg_cosine=0.8666669845745009
+llm_evaluation model=gpt-4.1 avg_response_len=9.966666666666667
+embedding_evaluation model=testembedding-3small avg_cosine=0.8720763596129805
+llm_evaluation model=gpt-4.1 avg_response_len=9.966666666666667
+embedding_evaluation model=testembedding-3small avg_cosine=0.8733367003177572
+llm_evaluation model=gpt-4.1 avg_response_len=9.966666666666667
+embedding_evaluation model=testembedding-3small avg_cosine=0.8736508147804376
+llm_evaluation model=gpt-4.1 avg_response_len=9.966666666666667
+embedding_evaluation model=testembedding-3small avg_cosine=0.8678822158065699
+llm_evaluation model=gpt-4.1 avg_response_len=9.966666666666667
+embedding_evaluation model=testembedding-3small avg_cosine=0.8701071379790715
+llm_evaluation model=gpt-4.1 avg_response_len=9.966666666666667
+embedding_evaluation model=testembedding-3small avg_cosine=0.87394666412842
+llm_evaluation model=gpt-4.1 avg_response_len=9.966666666666667
