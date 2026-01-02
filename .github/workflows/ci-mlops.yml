@@ -138,3 +138,21 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated
+        id: deploy
+
+      - name: Smoke test post-deployment (optional)
+        if: success()
+        continue-on-error: true
+        run: |
+          # Esperar a que el servicio esté listo
+          sleep 10
+          SERVICE_URL=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
+            --region ${{ env.GCP_REGION }} --format 'value(status.url)')
+          echo "Testing service at: $SERVICE_URL"
+          
+          # Simple health check
+          curl -X POST $SERVICE_URL/recommend \
+            -H "Content-Type: application/json" \
+            -d '{"query": "tomato soup"}' \
+            -w "\nHTTP Status: %{http_code}\n" \
+            -m 10 || echo "Smoke test warning: Could not reach endpoint"
