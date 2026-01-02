@@ -25,6 +25,10 @@ load_dotenv(PROJECT_ROOT / ".env")
 
 DATA_PKL = os.getenv("DATA_PKL", str(PROJECT_ROOT / "food.pkl"))
 
+# MLflow Configuration - Use Cloud SQL for production
+MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "./mlruns")
+MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", "recipe-recommendations")
+
 # Connect with Qdrant
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 QDRANT_HOST = os.getenv("QDRANT_HOST", "https://a48878a9-e5e9-4cf4-9283-4727ea94bd4c.europe-west3-0.gcp.cloud.qdrant.io")
@@ -86,6 +90,7 @@ def load_resources():
 
         # Log model parameters once at startup
         with mlflow.start_run(run_name="model_config"):
+            mlflow.set_tag("type", "model_config")
             mlflow.log_param("embedding_model", "text-embedding-3-small")
             mlflow.log_param("llm_model", "gpt-4.1-2025-04-14")
             mlflow.log_param("alpha", 0.7)
@@ -94,18 +99,14 @@ def load_resources():
             mlflow.log_param("num_recipes", len(data))
             mlflow.end_run()
 
-        print(f"MLflow tracking enabled: {MLFLOW_TRACKING_URI}")
+        print(f"✓ MLflow tracking enabled: {MLFLOW_TRACKING_URI}")
     except Exception as e:
-        print(f"MLflow initialization warning: {e}. Tracking may be unavailable.")
+        print(f"⚠ MLflow initialization warning: {e}. Tracking may be unavailable.")
 
 # Store OpenAI key
 load_dotenv(PROJECT_ROOT / ".env")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai_api_key = OPENAI_API_KEY
-
-# MLflow Configuration
-MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "./mlruns")
-MLFLOW_EXPERIMENT_NAME = os.getenv("MLFLOW_EXPERIMENT_NAME", "recipe-recommendations")
 
 def recommend_for_new_user(query, n=3, alpha=0.7, return_scores=False, openai_api_key=openai_api_key, client=client):
     # Generate embedding for the query
@@ -202,37 +203,47 @@ def recommend(query, n=3, alpha=0.7, return_scores=False):
 @app.post("/recommend")
 def recommend_endpoint(q: QueryIn):
     with mlflow.start_run():
-        # Log query info
-        try:
-            mlflow.log_param("query", q.query[:100])
-        except Exception:
-            pass  # Silent fail for tracking
-
+        mlflow.set_tag("endpoint", "/recommend")
+        
         # Track total API latency
         start = time.perf_counter()
-
+        
         try:
+            # Log input
+            mlflow.log_param("query", q.query[:100])
+            
+            # Get recommendations
             recs, translation_latency = recommend(q.query)
             validated = RecommendResponse(recetas=recs)
-
-            # Log metrics
+            
+            # Calculate total latency
             api_latency = (time.perf_counter() - start) * 1000
-            try:
-                mlflow.log_metric("api_latency_ms", api_latency)
-                mlflow.log_metric("translation_latency_ms", translation_latency)
-                mlflow.log_metric("num_recipes", len(recs))
-                # Save responses
-                mlflow.log_text(validated.json(ensure_ascii=False, indent=2), "response.json")
-            except Exception:
-                pass  # Silent fail for tracking
-
+            
+            # Log metrics
+            mlflow.log_metric("api_latency_ms", api_latency)
+            mlflow.log_metric("translation_latency_ms", translation_latency)
+            mlflow.log_metric("num_recipes", len(recs))
+            
+            # Log recipe names for easy searching
+            recipe_names = ", ".join([recipe.get("nombre", "unknown") for recipe in recs])
+            mlflow.log_param("recipe_names", recipe_names)
+            
+            # Save full API response
+            response_json = validated.model_dump_json(ensure_ascii=False, indent=2)
+            mlflow.log_text(response_json, "api_response.json")
+            
+            # Log success status
+            mlflow.set_tag("status", "success")
+            
         except Exception as e:
-            try:
-                mlflow.log_param("error", str(e)[:200])
-            except Exception:
-                pass  # Silent fail for tracking
+            # Log error details
+            api_latency = (time.perf_counter() - start) * 1000
+            mlflow.log_metric("api_latency_ms", api_latency)
+            mlflow.log_param("error", str(e)[:200])
+            mlflow.set_tag("status", "error")
+            
             raise HTTPException(status_code=500, detail=str(e))
-
+    
     return validated
 
 # To run locally:
