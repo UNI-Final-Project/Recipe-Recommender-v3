@@ -11,3 +11,4 @@ qdrant_client
 mlflow
 dvc
 dvc[gs]
+pytest
