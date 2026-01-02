@@ -12,6 +12,7 @@ jobs:
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       QDRANT_API_KEY: ${{ secrets.QDRANT_API_KEY }}
+      MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
 
     steps:
     - uses: actions/checkout@v3
@@ -57,4 +58,4 @@ jobs:
           --platform managed \
           --region us-west4 \
           --allow-unauthenticated \
-          --set-env-vars OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }},MLFLOW_TRACKING_URI=./mlruns,MLFLOW_EXPERIMENT_NAME=recipe-recommendations
+          --set-env-vars OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }},QDRANT_API_KEY=${{ secrets.QDRANT_API_KEY }},MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }},MLFLOW_EXPERIMENT_NAME=recipe-recommendations
