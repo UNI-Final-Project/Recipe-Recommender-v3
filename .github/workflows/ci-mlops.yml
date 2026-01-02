@@ -39,8 +39,7 @@ jobs:
     name: Register model to MLflow (CI demo)
     runs-on: ubuntu-latest
     needs: test
-    # Solo registrar en pushes a main (evitar side-effects en PRs)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     env:
       MLFLOW_TRACKING_URI: http://127.0.0.1:5000
     steps:
@@ -108,8 +107,7 @@ jobs:
     name: Build & Deploy to Cloud Run
     runs-on: ubuntu-latest
     needs: test
-    # Solo en pushes a main
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     env:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       GCP_REGION: ${{ secrets.GCP_REGION }}
