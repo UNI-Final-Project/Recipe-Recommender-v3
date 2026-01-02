@@ -25,6 +25,8 @@ Welcome! This project is a smart API that recommends cooking recipes using OpenA
 2. **Deploy the API** on Cloud Run and link it to MLflow using the `MLFLOW_TRACKING_URI` variable
 3. **Monitor everything** from the MLflow web UI (queries, latencies, results)
 
+![MLflow UI Example](media/mlflow-ui.png)
+
 ## 📝 Example Usage
 ```bash
 curl -X POST https://YOUR-API/recommend \
