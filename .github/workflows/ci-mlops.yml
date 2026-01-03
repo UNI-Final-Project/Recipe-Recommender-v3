@@ -84,7 +84,7 @@ jobs:
           PY
 
       - name: Register model (version_model.py)
-        run: python mlops/version_model.py --model-path dummy_model.pkl --name CI-Demo
+        run: python mlops/scripts/version_model.py --model-path dummy_model.pkl --name CI-Demo
 
       - name: Upload MLflow artifacts (if present)
         if: always()
@@ -112,7 +112,6 @@ jobs:
       GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
       GCP_REGION: ${{ secrets.GCP_REGION }}
       CLOUD_RUN_SERVICE: ${{ secrets.CLOUD_RUN_SERVICE }}
-      IMAGE: gcr.io/${{ secrets.GCP_PROJECT }}/${{ secrets.CLOUD_RUN_SERVICE }}:${{ github.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -125,6 +124,16 @@ jobs:
 
       - name: Configure Docker authentication
         run: gcloud auth configure-docker --quiet
+
+      - name: Validate GCP variables and set IMAGE
+        run: |
+          if [ -z "$GCP_PROJECT" ] || [ -z "$GCP_REGION" ] || [ -z "$CLOUD_RUN_SERVICE" ]; then
+            echo "One or more required GCP secrets are missing. Set GCP_PROJECT, GCP_REGION, CLOUD_RUN_SERVICE in repository secrets."
+            exit 1
+          fi
+          IMAGE_VAL="gcr.io/${GCP_PROJECT}/${CLOUD_RUN_SERVICE}:${GITHUB_SHA}"
+          echo "IMAGE=${IMAGE_VAL}" >> $GITHUB_ENV
+          echo "IMAGE set to: ${IMAGE_VAL}"
 
       - name: Build and push Docker image
         run: |
