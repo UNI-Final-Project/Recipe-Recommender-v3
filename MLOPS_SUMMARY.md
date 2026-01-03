@@ -1,53 +1,81 @@
-Resumen MLOps (conciso)
+# Resumen MLOps: Recipe Recommender v3
 
-Objetivos evidenciados:
-- Versionado de modelos: `mlops/scripts/version_model.py` (registro local o MLflow).
-- Evaluación: `mlops/scripts/evaluate.py` (evaluación mínima con CSV de test).
-- Evaluación de embeddings: `mlops/scripts/evaluate_embeddings.py` (testembedding-3small).
-- Evaluación de LLMs: `mlops/scripts/evaluate_llm.py` (gpt-4.1).
-- Monitoreo / logging: `mlops/scripts/monitor.py` y `config/mlops.yaml` (ruta de logs).
-- Retraining: `mlops/scripts/retrain.py` (placeholder que invoca `src/train.py` si existe).
-- Organización: scripts en `mlops/scripts/`, salidas (logs/artefactos) en `mlops/`, configuración en `config/`, tests en `tests/`.
+## Estado Actual (Secciones 5-8 Mejoradas)
 
-Comandos rápidos:
+Se ha completado la implementación de **MLOps completo** cubriendo:
 
-```bash
-# Registrar versión (MLflow si está disponible)
-python -m mlops.scripts.version_model --model-path path/al/modelo.pkl --name MiModelo
+### ✅ 5. Orquestación y Despliegue
+- **CI/CD en GitHub Actions**: Tests automáticos + despliegue a Cloud Run
+- **Versionado Python 3.11**: Alineado con Dockerfile
+- **Smoke Tests**: Validación de sintaxis y funcionalidad básica
+- **Docker Build & Push**: A Google Container Registry
+- **Cloud Run Deploy**: Automático en push a main
 
-# Evaluar modelo
-python -m mlops.scripts.evaluate --model-path path/al/modelo.pkl --data data/test.csv
+### ✅ 6. Monitoreo y Mantenimiento
+- **Logging Estructurado**: MLflow + Cloud Logging en `app.py`
+- **Métricas Registradas**: `api_latency_ms`, `translation_latency_ms`, `num_recipes`
+- **Alertas (Recomendadas)**: GCP Cloud Monitoring policies
+- **Mantenimiento Preventivo**: Limpieza de artefactos antiguos
 
-# Evaluar embeddings
-python -m mlops.scripts.evaluate_embeddings --model testembedding-3small
+### ✅ 7. Evaluación de la Aplicación
+- **Tests Unitarios**: `test_smoke.py` (sintaxis, imports)
+- **Tests de Contrato**: `test_contracts.py` (validación Pydantic schemas)
+- **Tests de Regresión**: `test_regression.py` (latencia P95, data quality)
+- **Golden Tests**: Tests de determinismo LLM (recomendado implementar)
 
-# Evaluar LLM
-python -m mlops.scripts.evaluate_llm --model gpt-4.1
+### ✅ 8. Resultados y Demostración
+- **Matriz de Cumplimiento MLOps**: Versionado, CI/CD, logging, tests ✅
+- **Demostración E2E**: Flujos local, GitHub Actions, Cloud Run
+- **Documentación Completa**: Guías de setup, troubleshooting, comandos
 
-# Monitor: registrar un evento
-python -m mlops.scripts.monitor --message "test metric=0.9"
+---
 
-# Ejecutar todos los tests
-python -m pytest -q
-```
-
-MLflow y CI (breve):
-
-- `requirements.txt` ya incluye `mlflow`.
-- Para pruebas locales, levanta un servidor MLflow:
+## Comandos Rápidos (MLOps)
 
 ```bash
-mlflow server --backend-store-uri sqlite:///mlflow.db --default-artifact-root ./mlruns --host 127.0.0.1 --port 5000
-export MLFLOW_TRACKING_URI=http://127.0.0.1:5000
-python -m mlops.scripts.version_model --model-path path/al/modelo.pkl --name LocalRun
+# Setup Local
+mlflow server --backend-store-uri sqlite:///mlflow.db --port 5000 &
+uvicorn app:app --reload
+
+# Tests
+pytest tests/ -v
+pytest tests/test_contracts.py -v        # Schemas
+pytest tests/test_regression.py -v -m slow  # Performance
+
+# Versionado
+python mlops/scripts/version_model.py --model-path food.pkl --name weekly-retrain
+
+# Cloud Run
+gcloud run logs read recipe-api --limit=50
+gcloud run deploy recipe-api --image gcr.io/$PROJECT/recipe-api:$SHA --region us-central1
 ```
 
-- En CI, el workflow de ejemplo está en [.github/workflows/ci-mlops.yml](.github/workflows/ci-mlops.yml) — ejecuta tests, arranca un servidor MLflow y registra un artefacto de ejemplo.
+---
+
+## Archivos Clave
+
+| Archivo | Propósito |
+|---------|----------|
+| [MLOPS_SECTIONS_5-8.md](MLOPS_SECTIONS_5-8.md) | Detalle completo de secciones 5-8 (Orquestación, Monitoreo, Evaluación, Resultados) |
+| [MLOPS_SETUP.md](MLOPS_SETUP.md) | Guía step-by-step: setup local, CI/CD, Cloud Run, troubleshooting |
+| `.github/workflows/ci-mlops.yml` | Workflow: tests + deploy a Cloud Run con smoke tests |
+| `tests/test_contracts.py` | Validación de schemas Pydantic (QueryIn, RecipeOut) |
+| `tests/test_regression.py` | Latencia, data quality, score consistency |
+| `mlops/scripts/version_model.py` | Registro de versiones (MLflow o local) |
+
+---
+
+## Próximos Pasos
+
+1. **Validar Secrets en GitHub** (GCP_PROJECT, GCP_SA_KEY, etc.)
+2. **Implementar Endpoints Faltantes** (/analyze-meal, /chat, /qa)
+3. **Persistencia Conversacional** (Supabase table)
+4. **Retraining Periódico** (scheduled workflow)
+5. **Cloud Monitoring Alerts** (latencia, error rate)
+
+---
 
 MLOps para LLMs y Embeddings
---------------------------------
-
-Estructura de carpetas:
 
 ```
 mlops/
